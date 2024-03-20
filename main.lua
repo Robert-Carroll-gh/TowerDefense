@@ -1,5 +1,6 @@
 Bullet = require("bullet")
 require("tower")
+require("mob1")
 
 
 love.load = function()
@@ -10,6 +11,7 @@ end
 love.draw = function()
     bullet:draw()
     tower:draw()
+	enemy.draw()
 end
 
 love.update = function(dt)
