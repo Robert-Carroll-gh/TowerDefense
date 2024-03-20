@@ -31,13 +31,19 @@ function Tower:draw()
 end
 
 function Tower:shoot(x, y)
-    self.bulletType:new(self.x, self.y, x, y)
+    local b = self.bulletType:new(self.x, self.y, x, y)
+    if Projectiles then
+        table.insert(Projectiles[1], b)
+    else
+        return b
+    end
 end
 
 function Tower:update(dt)
     if self.target then
         self.shotTimer = self.shotTimer + dt
         if self.shotTimer >= self.fireRate then
+            self.shotTimer = self.shotTimer - self.fireRate
             self:shoot(self.target.x, self.target.y)
         end
     end

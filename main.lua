@@ -1,19 +1,20 @@
 Bullet = require("bullet")
+Projectiles = require("projectiles")
 require("tower")
 require("mob1")
 
-
 love.load = function()
     tower = Tower:new(50,50)
-    bullet = Bullet:new(500,200,tower.x,tower.y)
+    tower.target = enemy
 end
 
 love.draw = function()
-    bullet:draw()
     tower:draw()
 	enemy.draw()
+    Projectiles:draw()
 end
 
 love.update = function(dt)
-    bullet:update(dt)
+    tower:update(dt)
+    Projectiles:update(dt)
 end
