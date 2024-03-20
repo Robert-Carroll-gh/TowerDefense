@@ -1,12 +1,16 @@
+Bullet = require("bullet")
+
 Tower = {
     x = 0,
     y = 0,
     width = 50,
     height = 50,
     color = {0.3,0.3,0.3},
-    fireRate = 1, -- shots per second
+    fireRate = 1, -- time between shots
     damage = 1, -- damage per shot  
-
+    bulletType = Bullet,
+    target = nil,
+    shotTimer = 0,
 }
 
 function Tower:new(x,y)
@@ -26,3 +30,15 @@ function Tower:draw()
         self.width, self.height)
 end
 
+function Tower:shoot(x, y)
+    self.bulletType:new(self.x, self.y, x, y)
+end
+
+function Tower:update(dt)
+    if self.target then
+        self.shotTimer = self.shotTimer + dt
+        if self.shotTimer >= self.fireRate then
+            self:shoot(self.target.x, self.target.y)
+        end
+    end
+end

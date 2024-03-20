@@ -1,6 +1,6 @@
 require("utils")
 
-Bullet = {
+local Bullet = {
     x = 0,
     y = 0,
     speed = 600, -- pixels / second 
@@ -53,3 +53,4 @@ function Bullet:isColidingCircle(circleObject)
     return false
 end
 
+return Bullet

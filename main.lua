@@ -1,4 +1,4 @@
-require("bullet")
+Bullet = require("bullet")
 require("tower")
 
 
