@@ -1,13 +1,17 @@
-print("hello world")
+require("bullet")
+require("tower")
 
-x = 45
 
-print(x)
-
-love.load = function() end
+love.load = function()
+    tower = Tower:new(50,50)
+    bullet = Bullet:new(500,200,tower.x,tower.y)
+end
 
 love.draw = function()
-	love.graphics.print("hello world", 300, 150)
-	love.graphics.rectangle("fill", 10, 10, 50, 100)
+    bullet:draw()
+    tower:draw()
 end
---hi
+
+love.update = function(dt)
+    bullet:update(dt)
+end
