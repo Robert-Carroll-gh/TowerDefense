@@ -7,7 +7,6 @@ require("utils")
 love.load = function()
     tower = Tower:new(450,50)
     tower.target = enemy
-    Timers:new(0.1, function() print("hello") end, 50)
 end
 
 love.draw = function()
