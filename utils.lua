@@ -1,12 +1,15 @@
-function drawMoreInfo()
+local utils = {}
+
+function utils.drawDebug()
     love.graphics.setColor(1,1,1)
-    local mousePositionText = "X:"..love.mouse.getX() .. " Y: " .. love.mouse.getY()
-    love.graphics.print(mousePositionText, love.mouse.getX() + 20, love.mouse.getY())
+    local mousePositionText = "Mouse Position: X = "..love.mouse.getX() .. " Y = " .. love.mouse.getY()
+    love.graphics.print("FPS: ")
+    love.graphics.print(mousePositionText, 0, 12)
 
 end
 
 
-function normalize(x, y, newLength)
+function utils.normalize(x, y, newLength)
     local length = math.sqrt(x^2 + y^2)
     x = x / length
     y = y / length
@@ -17,3 +20,5 @@ function normalize(x, y, newLength)
     end
     return x,y
 end
+
+return utils

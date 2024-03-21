@@ -30,8 +30,3 @@ enemy.update = function()
 	end
 end
 
-love.keypressed = function(key)
-	if key == "j" then
-		enemy.hp = enemy.hp - 1
-	end
-end

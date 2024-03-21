@@ -1,4 +1,4 @@
-require("utils")
+local utils = require("utils")
 
 local Bullet = {
     x = 0,
@@ -38,7 +38,7 @@ end
 
 function Bullet:target(targetX, targetY)
     local vX, vY = targetX - self.x, targetY - self.y
-    self.speedX, self.speedY = normalize(vX, vY, self.speed)
+    self.speedX, self.speedY = utils.normalize(vX, vY, self.speed)
 end
 
 function Bullet:isColidingCircle(circleObject)
