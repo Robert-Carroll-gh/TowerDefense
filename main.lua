@@ -1,12 +1,13 @@
-Bullet = require("bullet")
 Projectiles = require("projectiles")
+Timers = require("timers")
 require("tower")
 require("mob1")
 require("utils")
 
 love.load = function()
-    tower = Tower:new(50,50)
+    tower = Tower:new(450,50)
     tower.target = enemy
+    Timers:new(0.1, function() print("hello") end, 50)
 end
 
 love.draw = function()
@@ -18,6 +19,7 @@ love.draw = function()
 end
 
 love.update = function(dt)
+    Timers:update(dt)
     tower:update(dt)
     Projectiles:update(dt)
 end
