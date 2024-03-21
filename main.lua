@@ -1,34 +1,32 @@
-Projectiles = require("projectiles")
+Bullets = require("bullets")
 Timers = require("timers")
 Utils = require("utils")
-require("tower")
+Towers = require("towers")
 require("mob1")
+require("map1")
 
 love.load = function()
-    ShowDebug = false
-
-    tower = Tower:new(450,50)
-    tower.target = enemy
+    Tower = Towers:new(450,50, Bullets, Timers)
+    Tower:target(enemy)
 end
 
 love.draw = function()
-    tower:draw()
+    map.draw()
 	enemy.draw()
-    Projectiles:draw()
+    Towers:draw()
+    Bullets:draw()
 
-    if ShowDebug then
-        Utils.drawDebug()
-    end
+    Utils.drawDebug()
 end
 
 love.update = function(dt)
+    Towers:update(dt)
     Timers:update(dt)
-    tower:update(dt)
-    Projectiles:update(dt)
+    Bullets:update(dt)
 end
 
 love.keypressed = function(key, scancode, isrepeat)
-	if ShowDebug then
+	if Utils.showDebug then
         print("Key Press:")
         print("    key:", key)
         print("    scancode:", scancode)
@@ -38,6 +36,8 @@ love.keypressed = function(key, scancode, isrepeat)
 	if key == "j" then
 		enemy.hp = enemy.hp - 1
 	elseif key == "f3" then
-        ShowDebug = (not ShowDebug)
+        Utils.showDebug = (not Utils.showDebug)
+	elseif key == "escape" then
+        love.event.push("quit")
 	end
 end
