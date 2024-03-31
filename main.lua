@@ -3,7 +3,7 @@ Timers = require("timers")
 Utils = require("utils")
 Towers = require("towers")
 require("mob1")
-require("map1")
+map = require("map1")
 
 love.load = function()
     Tower = Towers:new(450, 50, Bullets, Timers)
