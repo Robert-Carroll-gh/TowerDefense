@@ -2,25 +2,25 @@ local utils = require("utils")
 
 ---@class BulletHandler
 ---@field Bullets Bullet[]
-local BulletHandler = {Bullets = {}}
+local BulletHandler = { Bullets = {} }
 
 ---@class Bullet
 local Bullet = {
     x = 0,
     y = 0,
-    speed = 600, -- pixels / second 
+    speed = 600, -- pixels / second
     speedX = 0,
     speedY = 0,
 
     radius = 5,
-    color = {1, 0, 0}
+    color = { 1, 0, 0 }
 }
 
 function BulletHandler:update(dt)
     for i, bullet in ipairs(self.Bullets) do
         bullet:update(dt)
         if bullet.x < 0 or bullet.y < 0
-        or bullet.x > 800 or bullet.y > 600 then
+            or bullet.x > 800 or bullet.y > 600 then
             table.remove(self.Bullets, i)
         end
 
@@ -37,12 +37,12 @@ function BulletHandler:draw()
     end
 end
 
---- not a constructor for BulletHandler 
+--- not a constructor for BulletHandler
 --- constructs a Bullet, and adds it to the handler's list
----@param x number 
----@param y number 
----@param targetX number 
----@param targetY number 
+---@param x number
+---@param y number
+---@param targetX number
+---@param targetY number
 ---@return Bullet
 ---@overload fun(self: BulletHandler, x: number, y: number, target: table)
 function BulletHandler:new(x, y, targetX, targetY) -- can also be called as (x, y, target)
@@ -52,14 +52,15 @@ function BulletHandler:new(x, y, targetX, targetY) -- can also be called as (x, 
 end
 
 ---Bullet constructor
----@param x number 
----@param y number 
----@param targetX number 
----@param targetY number 
+---@param x number
+---@param y number
+---@param targetX number
+---@param targetY number
 ---@return Bullet
 ---@overload fun(x: number, y: number, target: table)
 function Bullet:new(x, y, targetX, targetY) -- can also be called as (x, y, target)
     local b = {}
+    ID(b)
     self.__index = self
     setmetatable(b, self)
 
@@ -68,7 +69,7 @@ function Bullet:new(x, y, targetX, targetY) -- can also be called as (x, y, targ
         local target = targetX
         targetX, targetY = target.x, target.y
     end
-    b:target(targetX,targetY)
+    b:target(targetX, targetY)
 
     return b
 end
@@ -91,8 +92,8 @@ end
 function Bullet:isColidingCircle(circleObject)
     local distanceX = self.x - circleObject.x
     local distanceY = self.y - circleObject.y
-    local minDistanceSquared = self.radius^2 + circleObject.radius^2
-    local distanceSquared = distanceX^2 + distanceY^2
+    local minDistanceSquared = (self.radius + circleObject.radius) ^ 2
+    local distanceSquared = distanceX ^ 2 + distanceY ^ 2
 
     if distanceSquared <= minDistanceSquared then
         return true
