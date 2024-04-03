@@ -1,4 +1,4 @@
-local utils = require("utils")
+local utils = require "utils"
 
 ---@class BulletHandler
 ---@field Bullets Bullet[]
@@ -11,22 +11,19 @@ local Bullet = {
     speed = 600, -- pixels / second
     speedX = 0,
     speedY = 0,
+    damage = 1,
 
     radius = 5,
-    color = { 1, 0, 0 }
+    color = { 1, 0, 0 },
 }
 
 function BulletHandler:update(dt)
-    for i, bullet in ipairs(self.Bullets) do
-        bullet:update(dt)
-        if bullet.x < 0 or bullet.y < 0
-            or bullet.x > 800 or bullet.y > 600 then
+    for i = #self.Bullets, 1, -1 do
+        local bullet = self.Bullets[i]
+        if bullet.kill then
             table.remove(self.Bullets, i)
-        end
-
-        if enemy and bullet:isColidingCircle(enemy) then --TODO: make this loop through all enemies once that is possible
-            enemy.hp = enemy.hp - 1
-            table.remove(self.Bullets, i)
+        else
+            bullet:update(dt)
         end
     end
 end
@@ -77,6 +74,16 @@ end
 function Bullet:update(dt)
     self.x = self.x + self.speedX * dt
     self.y = self.y + self.speedY * dt
+    if self.x < 0 or self.y < 0 or self.x > 800 or self.y > 600 then
+        self.kill = true
+    end
+    for i = #World.enemyHandler.Enemies, 1, -1 do
+        local enemy = World.enemyHandler.Enemies[i]
+        if self:isColidingCircle(enemy) then
+            enemy.hp = enemy.hp - self.damage
+            self.kill = true
+        end
+    end
 end
 
 function Bullet:draw()

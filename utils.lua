@@ -1,4 +1,4 @@
-local utils = { showDebug = true }
+local utils = { showDebug = false }
 
 function utils:start()
     self.showDebug = true
@@ -8,7 +8,7 @@ end
 function utils:stop()
     self.showDebug = false
     love.window.setVSync(1)
-    print("stopping")
+    print "stopping"
 end
 
 function utils:toggle()
@@ -45,6 +45,9 @@ end
 ---@return number
 function utils.normalize(x, y, newLength)
     local length = math.sqrt(x ^ 2 + y ^ 2)
+    if length == 0 then
+        return 0, 0
+    end
     x = x / length
     y = y / length
     if newLength then
@@ -52,6 +55,15 @@ function utils.normalize(x, y, newLength)
         y = y * newLength
     end
     return x, y
+end
+function utils.vecTo(x1, y1, x2, y2)
+    return x2 - x1, y2 - y1
+end
+function utils.lengthSquared(x, y)
+    return x ^ 2 + y ^ 2
+end
+function utils.length(x, y)
+    return math.sqrt(utils.lengthSquared(x, y))
 end
 
 return utils

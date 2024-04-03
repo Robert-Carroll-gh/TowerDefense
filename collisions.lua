@@ -1,4 +1,5 @@
 local M = {}
+-- might use this as a module at some point but not needed right now
 
 M.makeColidable = function(object)
     --operate on the class if possible

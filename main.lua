@@ -1,12 +1,20 @@
+-- difficulty testing options
+local HORDE_SIZE = 10
+local SPAWN_RATE = 2
+local ENEMY_HP = 20
+
 -- load modules
 local Bullets = require "bullets"
 local Timers = require "timers"
 local Utils = require "utils"
 local Towers = require "towers"
-local Enemies = require "mob1"
-require "map1"
+local Enemies = require "enemies"
+local map = require "map1"
 
 -- declare globals
+
+World = { bulletHandler = Bullets, timerHandler = Timers, enemyHandler = Enemies, map = map }
+
 function ID(object)
     MaxID = MaxID or 0
     if object.id then
@@ -18,13 +26,9 @@ function ID(object)
     return object.id
 end
 
-local enemy
-local tower
+-- Begin game code
 love.load = function()
-    love.window.setVSync(0)
-    tower = Towers:new(450, 50, Bullets, Timers)
-    enemy = Enemies:new(150, 200)
-    tower:target(enemy)
+    map.spawnEnemies(HORDE_SIZE, SPAWN_RATE, ENEMY_HP)
 end
 
 love.draw = function()
@@ -43,6 +47,12 @@ love.update = function(dt)
     Bullets:update(dt)
 end
 
+love.mousepressed = function(x, y, button, istouch, presses)
+    if button == 1 then
+        Towers:new(x, y)
+    end
+end
+
 love.keypressed = function(key, scancode, isrepeat)
     if Utils.showDebug then
         print "Key Press:"
@@ -51,8 +61,8 @@ love.keypressed = function(key, scancode, isrepeat)
         print("    isrepeat:", isrepeat)
     end
 
-    if key == "j" then
-        enemy.hp = enemy.hp - 1
+    if key == "space" then
+        map.spawnEnemies(HORDE_SIZE, SPAWN_RATE, ENEMY_HP)
     elseif key == "f3" then
         Utils:toggle()
     elseif key == "escape" then

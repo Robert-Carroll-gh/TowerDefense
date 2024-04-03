@@ -1,15 +1,21 @@
-local smiley = love.graphics.newImage("images/mob1.png")
+local utils = require "utils"
+
+local smiley = love.graphics.newImage "images/mob1.png"
 
 ---@class EnemyHandler
 ---@field Enemies Enemy[]
-local EnemyHandler = { Enemies = {}, }
+local EnemyHandler = { Enemies = {} }
 
 ---@class Enemy
 local Enemy = {
     x = 0,
     y = 0,
     radius = smiley:getHeight() / 2,
-    hp = 10,
+    hp = 25,
+    speed = 100,
+    speedX = 0,
+    speedY = 0,
+    pathNode = 1,
 
     olddraw = function(self)
         love.graphics.setColor(1, 1, 1)
@@ -22,17 +28,35 @@ local Enemy = {
     draw = function(self)
         love.graphics.draw(smiley, self.x - self.radius, self.y - self.radius)
         love.graphics.print(self.hp, self.x, self.y + 50)
-    end
+    end,
 }
 
 function Enemy:update(dt)
-    return dt
+    if self.hp <= 0 then
+        self.kill = true
+    end
+
+    local pathNode = World.map.enemyPath[self.pathNode]
+
+    local vecToX, vecToY = utils.vecTo(self.x, self.y, pathNode[1], pathNode[2])
+    self.speedX, self.speedY = utils.normalize(vecToX, vecToY, self.speed * dt)
+    self.x = self.x + self.speedX
+    self.y = self.y + self.speedY
+
+    if utils.lengthSquared(vecToX, vecToY) <= 16 then
+        self.pathNode = self.pathNode + 1
+        if self.pathNode > #World.map.enemyPath then
+            self.kill = true
+            print "enemy escaped"
+            return
+        end
+    end
 end
 
 function EnemyHandler:update(dt)
     for i, enemy in ipairs(self.Enemies) do
         enemy:update(dt)
-        if enemy.hp <= 0 then
+        if enemy.kill then
             table.remove(self.Enemies, i)
         end
     end
@@ -49,8 +73,8 @@ end
 ---@param x number
 ---@param y number
 ---@return Enemy
-function EnemyHandler:new(x, y)
-    local enemy = Enemy:new(x, y)
+function EnemyHandler:new(x, y, hp)
+    local enemy = Enemy:new(x, y, hp)
     table.insert(self.Enemies, enemy)
     return enemy
 end
@@ -59,12 +83,13 @@ end
 ---@param x number
 ---@param y number
 ---@return Enemy
-function Enemy:new(x, y)
+function Enemy:new(x, y, hp)
     local e = {}
     self.__index = self
     setmetatable(e, self)
 
     e.x, e.y = x, y
+    e.hp = hp
 
     return e
 end

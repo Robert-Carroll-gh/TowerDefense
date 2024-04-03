@@ -7,7 +7,6 @@
 ---@field update function call this method in love.update <br>updates all timers
 local TimerHandler = { Timers = {} }
 
-
 ---@class Timer
 ---@field duration number time in seconds required before the timer triggers
 ---@field onTrigger function the function that gets called when the timer triggers
@@ -16,9 +15,10 @@ local Timer = {}
 Timer.__index = Timer
 
 function TimerHandler:update(dt)
-    for k, timer in pairs(self.Timers) do
-        if timer.repeats == 0 then
-            table.remove(self.Timers, k)
+    for i = #self.Timers, 1, -1 do
+        timer = self.Timers[i]
+        if timer.kill then
+            table.remove(self.Timers, i)
         else
             timer:update(dt)
         end
@@ -37,10 +37,6 @@ function TimerHandler:new(duration, onTrigger, repeats)
     return timer
 end
 
-function Timer:kill()
-    self.repeats = 0
-end
-
 ---Creates a Timer
 ---@param duration number # time in seconds required before the timer triggers
 ---@param onTrigger function # the function that gets called when the timer triggers
@@ -52,8 +48,12 @@ function Timer:new(duration, onTrigger, repeats)
     setmetatable(timer, self)
     timer.progress = 0
 
-    if repeats == nil then repeats = true end
-    if repeats == false then repeats = 1 end
+    if repeats == nil then
+        repeats = true
+    end
+    if repeats == false then
+        repeats = 1
+    end
     timer.duration = duration
     timer.onTrigger = onTrigger
     timer.repeats = repeats
@@ -67,6 +67,9 @@ function Timer:update(dt)
         pcall(self.onTrigger)
         if type(self.repeats) == "number" then
             self.repeats = self.repeats - 1
+            if self.repeats == 0 then
+                self.kill = true
+            end
         end
         self.progress = self.progress - self.duration
     end
