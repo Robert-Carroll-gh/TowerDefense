@@ -10,6 +10,7 @@ local Utils = require "utils"
 local Towers = require "towers"
 local Enemies = require "enemies"
 local map = require "map1"
+local gui = require "gui"
 
 -- declare globals
 
@@ -29,6 +30,8 @@ end
 -- Begin game code
 love.load = function()
     map.spawnEnemies(HORDE_SIZE, SPAWN_RATE, ENEMY_HP)
+
+    gui:nestedBoxesDemo() --temp
 end
 
 love.draw = function()
@@ -36,6 +39,7 @@ love.draw = function()
     Enemies:draw()
     Towers:draw()
     Bullets:draw()
+    gui:draw()
 
     Utils:drawDebug()
 end
