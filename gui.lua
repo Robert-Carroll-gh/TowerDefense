@@ -18,6 +18,7 @@ M.Box = {
 
 function M.Box:new(box, parent)
     local b = box or {}
+    b.elements = {}
     self.__index = self
     setmetatable(b, self)
 
