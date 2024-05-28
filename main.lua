@@ -31,7 +31,7 @@ end
 love.load = function()
     map.spawnEnemies(HORDE_SIZE, SPAWN_RATE, ENEMY_HP)
 
-    gui:nestedBoxesDemo() --temp
+    gui:onClickDemo()
 end
 
 love.draw = function()
@@ -51,8 +51,11 @@ love.update = function(dt)
     Bullets:update(dt)
 end
 
-love.mousepressed = function(x, y, button, istouch, presses)
-    if button == 1 then
+love.mousepressed = function(x, y, mouseButton, istouch, presses)
+    if gui:processClick(x, y, mouseButton) then
+        return true
+    end
+    if mouseButton == 1 then
         Towers:new(x, y)
     end
 end

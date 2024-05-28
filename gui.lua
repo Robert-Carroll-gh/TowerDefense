@@ -2,6 +2,15 @@ local M = {}
 
 M.elements = {}
 
+function M:loadMainMenu()
+    local mainMenu = {
+        x = 10,
+        y = 10,
+        width = 100,
+        height = 350,
+    }
+end
+
 M.Box = {
     active = true,
     relative = false,
@@ -15,6 +24,33 @@ M.Box = {
     outerPadHorizontal = 0,
     elements = {},
 }
+
+function M.Box:getAbsolutePos()
+    if self.parent == nil then
+        return self.x, self.y
+    else
+        local parentX, parentY = M.Box.getAbsolutePos(self.parent)
+        return parentX + self.x, parentY + self.y
+    end
+end
+
+function M:processClick(x, y, mouseButton, box)
+    local elements = self.elements
+    if box then
+        elements = box.elements
+    end
+    local clickedSomeGui = false
+    for _, element in ipairs(elements) do
+        local minX, minY = element:getAbsolutePos()
+        local maxX, maxY = minX + element.width, minY + element.height
+        if x >= minX and y >= minY and x <= maxX and y <= maxY then
+            clickedSomeGui = true
+            pcall(element.onClick)
+            M:processClick(x, y, mouseButton, element)
+        end
+    end
+    return clickedSomeGui
+end
 
 function M.Box:new(box, parent)
     local b = box or {}
@@ -32,10 +68,27 @@ function M.Box:new(box, parent)
     return b
 end
 
-function M.Box:draw()
+function M.Box:newText(text, x, y)
+    local b = M.Box:new(nil, self)
+    b.width, b.height = 0, 0
+    b.x = x or 0
+    b.y = y or 0
+    b.draw = function(self)
+        local color = self.color or { 0, 0, 0 }
+        love.graphics.setColor(color)
+        love.graphics.print(text, self.x, self.y)
+    end
+    return b
+end
+
+function M.Box:outline()
     local color = self.color or { 0, 0, 0 }
     love.graphics.setColor(color)
     love.graphics.rectangle("line", self.x, self.y, self.width, self.height)
+end
+
+function M.Box:draw()
+    self:outline()
 end
 
 function M:draw(box)
@@ -58,6 +111,21 @@ function M:draw(box)
     if box then
         love.graphics.pop()
     end
+end
+
+function M:onClickDemo()
+    local mainBox = {
+        x = 10,
+        y = 10,
+        width = 150,
+        height = 350,
+    }
+    self.Box:new(mainBox)
+    mainBox.onClick = function()
+        print "Clicked"
+        return true
+    end
+    mainBox:newText("test", 15, 60)
 end
 
 function M:nestedBoxesDemo()
