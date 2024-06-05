@@ -1,14 +1,85 @@
 local M = {}
 
 M.elements = {}
+M.placing = nil
 
-function M:loadMainMenu()
-    local mainMenu = {
-        x = 10,
-        y = 10,
-        width = 100,
-        height = 350,
+-- preventing errors from nil injection for other functions
+---@class sideBar
+local sideBar = nil
+
+function M.loadGameMenu()
+    if sideBar == nil then
+        sideBar = {
+            x = 5,
+            y = 10,
+            width = 75,
+            height = 350,
+        }
+        M.Box:new(sideBar)
+    else
+        sideBar.elements = {}
+    end
+
+    local towerMenuButton = {
+        x = 5,
+        y = 15,
+        width = 50,
+        height = 50,
+        color = { 0, 0, 1 },
     }
+    M.Box:new(towerMenuButton, sideBar)
+    towerMenuButton:newText "Place\nTower"
+    towerMenuButton.onClick = M.loadTowerMenu
+end
+
+function M.loadTowerMenu()
+    sideBar.elements = {}
+
+    local backButton = {
+        x = 5,
+        y = 15,
+        width = 50,
+        height = 50,
+        color = { 1, 0, 0 },
+    }
+    M.Box:new(backButton, sideBar)
+    backButton:newText "Back"
+    backButton.onClick = function()
+        M.placing = nil
+        M.loadGameMenu()
+    end
+
+    local towerButtonTemplate = {
+        x = 5,
+        y = 70,
+        width = 50,
+        height = 50,
+        color = { 0, 0, 1 },
+    }
+    M.Box:new(towerButtonTemplate, sideBar)
+
+    local offset = 5
+    local i = 0
+
+    --TODO sort tower type buttons. by cost or alphabetical
+    for name, tower in pairs(World.towerHandler.types) do
+        i = i + 1
+        local button = {
+            y = backButton.y + (i * (backButton.height + offset)),
+        }
+        if tower.color then
+            button.color = tower.color
+        end
+        towerButtonTemplate:new(button, sideBar)
+        button:newText(name)
+        button.onClick = function()
+            M.placing = { object = tower, type = "tower" }
+        end
+    end
+end
+
+M.canPlaceTower = function(tower)
+    return true
 end
 
 M.Box = {
@@ -86,10 +157,7 @@ function M.Box:outline()
     love.graphics.setColor(color)
     love.graphics.rectangle("line", self.x, self.y, self.width, self.height)
 end
-
-function M.Box:draw()
-    self:outline()
-end
+M.Box.draw = M.Box.outline
 
 function M:draw(box)
     local elements = self.elements
@@ -97,6 +165,10 @@ function M:draw(box)
         elements = box.elements
         love.graphics.push()
         love.graphics.translate(box.x, box.y)
+    else
+        if self.placing then
+            self:drawPlacement()
+        end
     end
 
     for _, element in ipairs(elements) do
@@ -107,9 +179,22 @@ function M:draw(box)
             self.draw(self, element)
         end
     end
-
     if box then
         love.graphics.pop()
+    end
+end
+
+function M:drawPlacement()
+    local object = self.placing.object
+    local mx, my = love.mouse.getPosition()
+    local x = mx - object.width / 2
+    local y = my - object.height / 2
+    love.graphics.setBlendMode "screen"
+    object:draw(mx, my)
+    love.graphics.setBlendMode "alpha"
+    if self.placing.type == "tower" and M.canPlaceTower(object) == false then
+        love.graphics.setColor(1, 0, 0, 0.5)
+        love.graphics.rectangle("fill", x, y, object.width, object.height)
     end
 end
 

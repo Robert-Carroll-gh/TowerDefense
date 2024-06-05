@@ -16,14 +16,27 @@ local Tower = {
     -- damage = 1, -- damage per shot
     hp = 100,
 }
+Tower.__index = Tower
+
+TowerHandler.types = require "towerTypes"
+for name, tower in pairs(TowerHandler.types) do
+    tower.__index = Tower
+    setmetatable(tower, Tower)
+end
 
 ---not a TowerHandler constructor
 --- instead, constructs Tower and adds it to the handler's list
+---@param type string
 ---@param x number
 ---@param y number
 ---@return Tower
-function TowerHandler:new(x, y)
-    local tower = Tower:new(x, y)
+function TowerHandler:new(type, x, y)
+    local tower
+    if TowerHandler.types[type] ~= nil then
+        tower = TowerHandler.types[type]:new(x, y)
+    else
+        tower = Tower:new(x, y)
+    end
     table.insert(self.Towers, tower)
     return tower
 end
@@ -73,9 +86,11 @@ function Tower:hunt(target)
     return timer
 end
 
-function Tower:draw()
+function Tower:draw(x, y)
+    local x = x or self.x
+    local y = y or self.y
     love.graphics.setColor(self.color)
-    love.graphics.rectangle("fill", self.x - self.width / 2, self.y - self.height / 2, self.width, self.height)
+    love.graphics.rectangle("fill", x - self.width / 2, y - self.height / 2, self.width, self.height)
 end
 
 function Tower:shoot(x, y)

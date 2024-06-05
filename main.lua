@@ -14,7 +14,7 @@ local gui = require "gui"
 
 -- declare globals
 
-World = { bulletHandler = Bullets, timerHandler = Timers, enemyHandler = Enemies, map = map }
+World = { bulletHandler = Bullets, timerHandler = Timers, enemyHandler = Enemies, map = map, towerHandler = Towers }
 
 function ID(object)
     MaxID = MaxID or 0
@@ -31,7 +31,7 @@ end
 love.load = function()
     map.spawnEnemies(HORDE_SIZE, SPAWN_RATE, ENEMY_HP)
 
-    gui:onClickDemo()
+    gui:loadGameMenu()
 end
 
 love.draw = function()
@@ -56,7 +56,7 @@ love.mousepressed = function(x, y, mouseButton, istouch, presses)
         return true
     end
     if mouseButton == 1 then
-        Towers:new(x, y)
+        Towers:new("basic", x, y)
     end
 end
 
