@@ -56,7 +56,7 @@ love.mousepressed = function(x, y, mouseButton, istouch, presses)
         return true
     end
     if mouseButton == 1 then
-        Towers:new("basic", x, y)
+        --Towers:new("basic", x, y)
     end
 end
 

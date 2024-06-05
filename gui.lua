@@ -78,7 +78,7 @@ function M.loadTowerMenu()
     end
 end
 
-M.canPlaceTower = function(tower)
+M.canPlace = function()
     return true
 end
 
@@ -120,7 +120,18 @@ function M:processClick(x, y, mouseButton, box)
             M:processClick(x, y, mouseButton, element)
         end
     end
+    if clickedSomeGui == false and box == nil and M.placing ~= nil then
+        if M.canPlace() and mouseButton == 1 then
+            M.placeObject(x, y)
+        end
+    end
     return clickedSomeGui
+end
+
+function M.placeObject(x, y)
+    if M.placing.type == "tower" then
+        World.towerHandler:new("aoe", x, y)
+    end
 end
 
 function M.Box:new(box, parent)
@@ -192,7 +203,7 @@ function M:drawPlacement()
     love.graphics.setBlendMode "screen"
     object:draw(mx, my)
     love.graphics.setBlendMode "alpha"
-    if self.placing.type == "tower" and M.canPlaceTower(object) == false then
+    if self.placing.type == "tower" and M.canPlace() == false then
         love.graphics.setColor(1, 0, 0, 0.5)
         love.graphics.rectangle("fill", x, y, object.width, object.height)
     end
