@@ -73,7 +73,7 @@ function M.loadTowerMenu()
         towerButtonTemplate:new(button, sideBar)
         button:newText(name)
         button.onClick = function()
-            M.placing = { object = tower, type = "tower" }
+            M.placing = { object = tower, type = "tower", name = name }
         end
     end
 end
@@ -130,7 +130,7 @@ end
 
 function M.placeObject(x, y)
     if M.placing.type == "tower" then
-        World.towerHandler:new("aoe", x, y)
+        World.towerHandler:new(M.placing.name, x, y)
     end
 end
 
