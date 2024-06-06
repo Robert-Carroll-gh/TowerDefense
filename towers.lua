@@ -94,7 +94,7 @@ function Tower:draw(x, y)
 end
 
 function Tower:shoot(x, y)
-    World.bulletHandler:new(self.x, self.y, x, y)
+    World.bulletHandler:new(self.bulletType or "basic", self.x, self.y, x, y)
 end
 
 function Tower:update(dt)

@@ -16,6 +16,13 @@ local Bullet = {
     radius = 5,
     color = { 1, 0, 0 },
 }
+Bullet.__index = Bullet
+
+BulletHandler.types = require "bulletTypes"
+for name, bullet in pairs(BulletHandler.types) do
+    bullet.__index = Bullet
+    setmetatable(bullet, Bullet)
+end
 
 function BulletHandler:update(dt)
     for i = #self.Bullets, 1, -1 do
@@ -36,14 +43,23 @@ end
 
 --- not a constructor for BulletHandler
 --- constructs a Bullet, and adds it to the handler's list
+---@param type string
 ---@param x number
 ---@param y number
 ---@param targetX number
 ---@param targetY number
 ---@return Bullet
----@overload fun(self: BulletHandler, x: number, y: number, target: table)
-function BulletHandler:new(x, y, targetX, targetY) -- can also be called as (x, y, target)
-    local bullet = Bullet:new(x, y, targetX, targetY)
+---@overload fun(self: BulletHandler, type: string, x: number, y: number, target: table)
+function BulletHandler:new(type, x, y, targetX, targetY) -- can also be called as (x, y, target)
+    local bullet
+    if BulletHandler.types[type] ~= nil then
+        print(BulletHandler.types[type].new)
+        print(Bullet.new)
+        bullet = BulletHandler.types[type]:new(x, y, targetX, targetY)
+        print(bullet)
+    else
+        bullet = Bullet:new(x, y, targetX, targetY)
+    end
     table.insert(self.Bullets, bullet)
     return bullet
 end
@@ -57,7 +73,7 @@ end
 ---@overload fun(x: number, y: number, target: table)
 function Bullet:new(x, y, targetX, targetY) -- can also be called as (x, y, target)
     local b = {}
-    ID(b)
+    --ID(b)
     self.__index = self
     setmetatable(b, self)
 
