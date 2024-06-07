@@ -17,6 +17,7 @@ local Tower = {
     hp = 100,
 }
 Tower.__index = Tower
+TowerHandler.Tower = Tower
 
 TowerHandler.types = require "towerTypes"
 for name, tower in pairs(TowerHandler.types) do
@@ -100,6 +101,7 @@ end
 function Tower:update(dt)
     if self.hp <= 0 then
         self.kill = true
+        return true
     end
     if self.target == nil then
         if self.shotTimer then

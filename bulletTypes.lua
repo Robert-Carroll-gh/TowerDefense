@@ -15,15 +15,7 @@ function bulletTypes.aoe:update(dt)
     for i = #World.enemyHandler.Enemies, 1, -1 do
         local enemy = World.enemyHandler.Enemies[i]
         if self:isColidingCircle(enemy) then
-            local explosion = { x = self.x, y = self.y, radius = 150 }
-            explosion.draw = function(self)
-                love.graphics.setColor(1, 0.1, 0.2, 0.5)
-                love.graphics.circle("fill", self.x, self.y, self.radius)
-            end
-            World.timerHandler:new(0.25, function()
-                explosion.kill = true
-            end, false)
-            World.graphicHandler:new(explosion)
+            local explosion = World.graphicHandler:flashCircle(self.x, self.y, 150, { 1, 0, 0, 0.3 })
 
             for j = #World.enemyHandler.Enemies, 1, -1 do
                 local enemy = World.enemyHandler.Enemies[j]

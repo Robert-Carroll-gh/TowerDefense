@@ -26,6 +26,7 @@ local Enemy = {
     end,
 
     draw = function(self)
+        love.graphics.setColor(1, 1, 1)
         love.graphics.draw(smiley, self.x - self.radius, self.y - self.radius)
         love.graphics.print(self.hp, self.x, self.y + 50)
     end,

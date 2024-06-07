@@ -2,11 +2,11 @@
 local HORDE_SIZE = 10
 local SPAWN_RATE = 2
 local ENEMY_HP = 20
+local STARTING_MANA = 300
 
 -- load modules
 local Bullets = require "bullets"
 local Timers = require "timers"
-local Utils = require "utils"
 local Towers = require "towers"
 local Enemies = require "enemies"
 local map = require "map1"
@@ -14,9 +14,11 @@ local gui = require "gui"
 local Graphics = require "graphicEffects"
 
 -- declare globals
+Utils = require "utils"
+ManaColor = { 0, 1, 1 }
 
 World = {
-    mana = 100,
+    mana = STARTING_MANA,
     graphicHandler = Graphics,
     bulletHandler = Bullets,
     timerHandler = Timers,

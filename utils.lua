@@ -1,5 +1,9 @@
 local utils = { showDebug = false }
 
+function utils.setAlpha(color, alpha)
+    return { color[1], color[2], color[3], alpha }
+end
+
 function utils:start()
     self.showDebug = true
     love.window.setVSync(0)
