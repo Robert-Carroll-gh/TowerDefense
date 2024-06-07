@@ -11,10 +11,19 @@ local Towers = require "towers"
 local Enemies = require "enemies"
 local map = require "map1"
 local gui = require "gui"
+local Graphics = require "graphicEffects"
 
 -- declare globals
 
-World = { bulletHandler = Bullets, timerHandler = Timers, enemyHandler = Enemies, map = map, towerHandler = Towers }
+World = {
+    mana = 100,
+    graphicHandler = Graphics,
+    bulletHandler = Bullets,
+    timerHandler = Timers,
+    enemyHandler = Enemies,
+    map = map,
+    towerHandler = Towers,
+}
 
 function ID(object)
     MaxID = MaxID or 0
@@ -36,6 +45,7 @@ end
 
 love.draw = function()
     map.draw()
+    Graphics:draw()
     Enemies:draw()
     Towers:draw()
     Bullets:draw()
@@ -45,6 +55,7 @@ love.draw = function()
 end
 
 love.update = function(dt)
+    Graphics:update(dt)
     Enemies:update(dt)
     Towers:update(dt)
     Timers:update(dt)

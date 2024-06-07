@@ -1,4 +1,5 @@
 local M = {}
+local manaColor = { 0, 1, 1 }
 
 M.elements = {}
 M.placing = nil
@@ -6,6 +7,8 @@ M.placing = nil
 -- preventing errors from nil injection for other functions
 ---@class sideBar
 local sideBar = nil
+---@class manaBox
+local manaBox = nil
 
 function M.loadGameMenu()
     if sideBar == nil then
@@ -18,6 +21,13 @@ function M.loadGameMenu()
         M.Box:new(sideBar)
     else
         sideBar.elements = {}
+    end
+    if manaBox == nil then
+        manaBox = M.Box:new { x = 640, y = 10, width = 150, height = 20, color = { 1, 0.3, 0.3 } }
+        local manaText = manaBox:newText(function()
+            return World.mana
+        end, 5, 2)
+        manaText.color = manaColor
     end
 
     local towerMenuButton = {
@@ -72,6 +82,9 @@ function M.loadTowerMenu()
         end
         towerButtonTemplate:new(button, sideBar)
         button:newText(name)
+        local costText = button:newText(tower.cost or 0, 0, 10)
+        costText.color = manaColor
+
         button.onClick = function()
             M.placing = { object = tower, type = "tower", name = name }
         end
@@ -79,7 +92,7 @@ function M.loadTowerMenu()
 end
 
 M.canPlace = function()
-    return true
+    return World.mana >= M.placing.object.cost
 end
 
 M.Box = {
@@ -123,6 +136,7 @@ function M:processClick(x, y, mouseButton, box)
     if clickedSomeGui == false and box == nil and M.placing ~= nil then
         if M.canPlace() and mouseButton == 1 then
             M.placeObject(x, y)
+            World.mana = World.mana - M.placing.object.cost
         end
     end
     return clickedSomeGui
@@ -150,15 +164,31 @@ function M.Box:new(box, parent)
     return b
 end
 
+M.drawStaticText = function(self, text)
+    local color = self.color or { 0, 0, 0 }
+    love.graphics.setColor(color)
+    love.graphics.print(text, self.x, self.y)
+end
+
+M.drawDynamicText = function(self, textGetter)
+    local color = self.color or { 0, 0, 0 }
+    love.graphics.setColor(color)
+    love.graphics.print(textGetter(), self.x, self.y)
+end
+
 function M.Box:newText(text, x, y)
     local b = M.Box:new(nil, self)
     b.width, b.height = 0, 0
     b.x = x or 0
     b.y = y or 0
-    b.draw = function(self)
-        local color = self.color or { 0, 0, 0 }
-        love.graphics.setColor(color)
-        love.graphics.print(text, self.x, self.y)
+    if type(text) == "function" then
+        b.draw = function()
+            pcall(M.drawDynamicText, b, text)
+        end
+    else
+        b.draw = function()
+            pcall(M.drawStaticText, b, text)
+        end
     end
     return b
 end

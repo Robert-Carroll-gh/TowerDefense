@@ -1,10 +1,14 @@
 local towerTypes = {}
 
-towerTypes.basic = {}
+towerTypes.basic = {
+    cost = 10,
+}
 
 towerTypes.aoe = {
+    cost = 50,
     color = { 0, 0.3, 1 },
     bulletType = "aoe",
+    fireRate = 3,
 }
 
 towerTypes.mana = {

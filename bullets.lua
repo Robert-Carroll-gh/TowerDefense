@@ -53,10 +53,7 @@ end
 function BulletHandler:new(type, x, y, targetX, targetY) -- can also be called as (x, y, target)
     local bullet
     if BulletHandler.types[type] ~= nil then
-        print(BulletHandler.types[type].new)
-        print(Bullet.new)
         bullet = BulletHandler.types[type]:new(x, y, targetX, targetY)
-        print(bullet)
     else
         bullet = Bullet:new(x, y, targetX, targetY)
     end
