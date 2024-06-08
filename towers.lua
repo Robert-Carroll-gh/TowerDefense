@@ -21,6 +21,7 @@ TowerHandler.Tower = Tower
 
 TowerHandler.types = require "towerTypes"
 for name, tower in pairs(TowerHandler.types) do
+    tower.name = name
     tower.__index = Tower
     setmetatable(tower, Tower)
 end
@@ -31,10 +32,12 @@ end
 ---@param x number
 ---@param y number
 ---@return Tower
-function TowerHandler:new(type, x, y)
+function TowerHandler:new(towerType, x, y)
     local tower
-    if TowerHandler.types[type] ~= nil then
-        tower = TowerHandler.types[type]:new(x, y)
+    if TowerHandler.types[towerType] ~= nil then
+        tower = TowerHandler.types[towerType]:new(x, y)
+    elseif type(towerType) == "table" then
+        tower = towerType:new(x, y)
     else
         tower = Tower:new(x, y)
     end

@@ -1,5 +1,21 @@
 local utils = { showDebug = false }
 
+function utils.isPointInCenteredRec(x, y, rec)
+    local minx = rec.x - rec.width / 2
+    local miny = rec.y - rec.height / 2
+    local maxx = rec.x + rec.width / 2
+    local maxy = rec.y + rec.height / 2
+    return x >= minx and x <= maxx and y >= miny and y <= maxy
+end
+
+function utils.isPointInRec(x, y, rec)
+    local minx = rec.x
+    local miny = rec.y
+    local maxx = rec.x + rec.width
+    local maxy = rec.y + rec.height
+    return x >= minx and x <= maxx and y >= miny and y <= maxy
+end
+
 function utils.setAlpha(color, alpha)
     return { color[1], color[2], color[3], alpha }
 end

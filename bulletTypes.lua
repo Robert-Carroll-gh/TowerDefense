@@ -18,7 +18,7 @@ function bulletTypes.aoe:update(dt)
             local explosion = World.graphicHandler:flashCircle(self.x, self.y, 150, { 1, 0, 0, 0.3 })
 
             for j = #World.enemyHandler.Enemies, 1, -1 do
-                local enemy = World.enemyHandler.Enemies[j]
+                enemy = World.enemyHandler.Enemies[j]
                 if self.isColidingCircle(explosion, enemy) then
                     enemy.hp = enemy.hp - self.damage
                     self.kill = true

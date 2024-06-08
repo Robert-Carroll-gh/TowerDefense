@@ -1,5 +1,4 @@
 local M = {}
-local manaColor = { 0, 1, 1 }
 
 M.elements = {}
 M.placing = nil
@@ -27,7 +26,7 @@ function M.loadGameMenu()
         local manaText = manaBox:newText(function()
             return World.mana
         end, 5, 2)
-        manaText.color = manaColor
+        manaText.color = ManaColor
     end
 
     local towerMenuButton = {
@@ -40,6 +39,17 @@ function M.loadGameMenu()
     M.Box:new(towerMenuButton, sideBar)
     towerMenuButton:newText "Place\nTower"
     towerMenuButton.onClick = M.loadTowerMenu
+
+    local upgradeTowerButton = {
+        x = 5,
+        y = 70,
+        width = 50,
+        height = 50,
+        color = { 1, 1, 1 },
+    }
+    M.Box:new(upgradeTowerButton, sideBar)
+    upgradeTowerButton:newText "Upgrade\nTower"
+    upgradeTowerButton.onClick = M.loadUpgradeMenu
 end
 
 function M.loadTowerMenu()
@@ -73,26 +83,58 @@ function M.loadTowerMenu()
 
     --TODO sort tower type buttons. by cost or alphabetical
     for name, tower in pairs(World.towerHandler.types) do
-        i = i + 1
-        local button = {
-            y = backButton.y + (i * (backButton.height + offset)),
-        }
-        if tower.color then
-            button.color = tower.color
-        end
-        towerButtonTemplate:new(button, sideBar)
-        button:newText(name)
-        local costText = button:newText(tower.cost or 0, 0, 10)
-        costText.color = manaColor
+        if tower.upgradesFrom == nil or tower.upgradesFrom == "none" then
+            i = i + 1
+            local button = {
+                y = backButton.y + (i * (backButton.height + offset)),
+            }
+            if tower.color then
+                button.color = tower.color
+            end
+            towerButtonTemplate:new(button, sideBar)
+            button:newText(name)
+            local costText = button:newText(tower.cost or 0, 0, 10)
+            costText.color = ManaColor
 
-        button.onClick = function()
-            M.placing = { object = tower, type = "tower", name = name }
+            button.onClick = function()
+                M.placing = { object = tower, type = "tower", name = name }
+            end
         end
     end
 end
 
+function M.loadUpgradeMenu()
+    sideBar.elements = {}
+
+    M.placing = { object = nil, type = "upgrade", name = nil }
+    local cost_indicator = sideBar:newText(function()
+        if M.placing.object ~= nil then
+            return M.placing.object.cost
+        end
+        return ""
+    end)
+    cost_indicator.color = ManaColor
+
+    local backButton = {
+        x = 5,
+        y = 35,
+        width = 50,
+        height = 50,
+        color = { 1, 0, 0 },
+    }
+    M.Box:new(backButton, sideBar)
+    backButton:newText "Back"
+    backButton.onClick = function()
+        M.placing = nil
+        M.loadGameMenu()
+    end
+end
+
 M.canPlace = function()
-    return World.mana >= M.placing.object.cost
+    if M.placing.object ~= nil then
+        return World.mana >= M.placing.object.cost
+    end
+    return false
 end
 
 M.Box = {
@@ -125,9 +167,7 @@ function M:processClick(x, y, mouseButton, box)
     end
     local clickedSomeGui = false
     for _, element in ipairs(elements) do
-        local minX, minY = element:getAbsolutePos()
-        local maxX, maxY = minX + element.width, minY + element.height
-        if x >= minX and y >= minY and x <= maxX and y <= maxY then
+        if Utils.isPointInRec(x, y, element) then
             clickedSomeGui = true
             pcall(element.onClick)
             M:processClick(x, y, mouseButton, element)
@@ -145,6 +185,11 @@ end
 function M.placeObject(x, y)
     if M.placing.type == "tower" then
         World.towerHandler:new(M.placing.name, x, y)
+    elseif M.placing.type == "upgrade" then
+        local mx, my = love.mouse.getPosition()
+        local hoveredTower = M.towerAt(mx, my)
+        World.towerHandler:new(M.placing.object, hoveredTower.x, hoveredTower.y)
+        hoveredTower.kill = true
     end
 end
 
@@ -206,10 +251,8 @@ function M:draw(box)
         elements = box.elements
         love.graphics.push()
         love.graphics.translate(box.x, box.y)
-    else
-        if self.placing then
-            self:drawPlacement()
-        end
+    elseif self.placing then
+        self:drawPlacement()
     end
 
     for _, element in ipairs(elements) do
@@ -225,17 +268,65 @@ function M:draw(box)
     end
 end
 
-function M:drawPlacement()
-    local object = self.placing.object
+function M.towerAt(x, y)
+    for i, tower in ipairs(World.towerHandler.Towers) do
+        if Utils.isPointInCenteredRec(x, y, tower) then
+            return tower
+        end
+    end
+end
+
+local drawTowerPlacement = function()
+    local object = M.placing.object
     local mx, my = love.mouse.getPosition()
     local x = mx - object.width / 2
     local y = my - object.height / 2
     love.graphics.setBlendMode "screen"
     object:draw(mx, my)
     love.graphics.setBlendMode "alpha"
-    if self.placing.type == "tower" and M.canPlace() == false then
+    if M.canPlace() == false then
         love.graphics.setColor(1, 0, 0, 0.5)
         love.graphics.rectangle("fill", x, y, object.width, object.height)
+    end
+end
+
+local drawUpgradePlacement = function()
+    local mx, my = love.mouse.getPosition()
+    local hoveredTower = M.towerAt(mx, my)
+    if hoveredTower ~= nil and hoveredTower.upgradesTo ~= nil and hoveredTower.upgradesTo ~= "none" then
+        M.placing.object = hoveredTower.upgradesTo
+        local object = M.placing.object
+        love.graphics.setBlendMode "screen"
+        object:draw(hoveredTower.x, hoveredTower.y)
+        love.graphics.setBlendMode "alpha"
+        if M.canPlace() == false then
+            love.graphics.setColor(1, 0, 0, 0.5)
+            love.graphics.rectangle("fill", hoveredTower.x, hoveredTower.y, object.width, object.height)
+        end
+    else
+        M.placing.object = nil
+    end
+end
+
+function M:drawPlacement()
+    if M.placing.type == "tower" then
+        drawTowerPlacement()
+    end
+
+    if M.placing.type == "upgrade" then
+        drawUpgradePlacement()
+    end
+
+    if object ~= nil then
+        local x = mx - object.width / 2
+        local y = my - object.height / 2
+        love.graphics.setBlendMode "screen"
+        object:draw(mx, my)
+        love.graphics.setBlendMode "alpha"
+        if self.placing.type == "tower" and M.canPlace() == false then
+            love.graphics.setColor(1, 0, 0, 0.5)
+            love.graphics.rectangle("fill", x, y, object.width, object.height)
+        end
     end
 end
 
