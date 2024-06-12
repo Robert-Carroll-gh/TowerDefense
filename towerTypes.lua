@@ -4,6 +4,12 @@ towerTypes.basic = {
     cost = 10,
 }
 
+towerTypes.mystic = {
+    cost = 10,
+    color = { 0.5, 1, 0 },
+    bulletType = "star",
+}
+
 towerTypes.aoe = {
     cost = 50,
     color = { 0, 0.3, 1 },

@@ -2,6 +2,15 @@ local bulletTypes = {}
 
 bulletTypes.basic = {}
 
+bulletTypes.star = {
+    color = { 0.5, 1, 0 },
+    image = love.graphics.newImage "images/star.png",
+}
+function bulletTypes.star:draw()
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.draw(self.image, self.x, self.y)
+end
+
 bulletTypes.aoe = {
     color = { 0, 0.3, 1 },
 }
