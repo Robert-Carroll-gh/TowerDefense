@@ -24,7 +24,7 @@ function M.loadGameMenu()
     if manaBox == nil then
         manaBox = M.Box:new { x = 640, y = 10, width = 150, height = 20, color = { 1, 0.3, 0.3 } }
         local manaText = manaBox:newText(function()
-            return World.mana
+            return (World.mana .. " / " .. World.manaCap)
         end, 5, 2)
         manaText.color = ManaColor
     end
@@ -238,8 +238,9 @@ function M.Box:newText(text, x, y)
     return b
 end
 
-function M.Box:outline()
+function M.Box:outline(x, y)
     local color = self.color or { 0, 0, 0 }
+    local x, y = x or self.x, y or self.y
     love.graphics.setColor(color)
     love.graphics.rectangle("line", self.x, self.y, self.width, self.height)
 end

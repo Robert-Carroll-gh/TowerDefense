@@ -14,39 +14,97 @@ towerTypes.aoe = {
 towerTypes.fae_puff = {
     cost = 100,
     upgradesFrom = nil,
-    upgradesTo = "fairyCloud",
+    upgradesTo = "fairy_cloud",
     color = { 1, 0, 1 },
     fireRate = 5,
     manaGeneration = 25,
 
     generateMana = function(self)
-        World.mana = World.mana + self.manaGeneration
+        local newMana = World.mana + self.manaGeneration
+        if newMana <= World.manaCap then
+            World.mana = newMana
+        else
+            World.mana = World.manaCap
+        end
         World.graphicHandler:flashCircle(self.x, self.y, 75, Utils.setAlpha(ManaColor, 0.5))
     end,
 
     new = function(self, x, y)
         local t = World.towerHandler.Tower.new(self, x, y)
-        t.update = function()
-            if self.hp <= 0 then
-                self.kill = true
-            end
-        end
         t.shotTimer = World.timerHandler:new(self.fireRate, function()
             t:generateMana()
         end, true)
 
+        self.__index = self
+        setmetatable(t, self)
+
         return t
+    end,
+
+    update = function(self, dt)
+        if self.hp <= 0 then
+            self.kill = true
+        end
+        if self.kill == true then
+            self.shotTimer.kill = true
+        end
     end,
 }
 
-towerTypes.fairyCloud = {
-    cost = 20,
+towerTypes.fairy_cloud = {
+    cost = 50,
     upgradesFrom = "fae_puff",
     upgradesTo = "none",
     color = { 1, 0, 0.8 },
-    width = 75,
-    height = 75,
+    width = 55,
+    height = 55,
     manaGeneration = 50,
+    generateMana = function(self)
+        local newMana = World.mana + self.manaGeneration
+        if newMana <= World.manaCap then
+            World.mana = newMana
+        else
+            World.mana = World.manaCap
+        end
+        World.graphicHandler:flashCircle(self.x, self.y, 75, Utils.setAlpha(ManaColor, 0.5))
+    end,
+
+    new = function(self, x, y)
+        local t = World.towerHandler.Tower.new(self, x, y)
+        t.shotTimer = World.timerHandler:new(self.fireRate, function()
+            t:generateMana()
+        end, true)
+
+        self.__index = self
+        setmetatable(t, self)
+
+        return t
+    end,
+
+    update = function(self, dt)
+        if self.hp <= 0 then
+            self.kill = true
+        end
+        if self.kill == true then
+            self.shotTimer.kill = true
+        end
+    end,
+}
+
+towerTypes.sacred_haven = {
+    cost = 100,
+    upgradesFrom = "fairy_cloud",
+    upgradesTo = "none",
+    -- color = { 1, 0, 0.5 },
+    width = 60,
+    height = 60,
+    manaGeneration = 150,
+    fireRate = 1.5,
+
+    --[[ new = function(self, x, y)
+        towerTypes.fae_puff.new(self, x, y)
+        World.manaCap = World.manaCap + 1000
+    end, ]]
 }
 
 towerTypes.slow = {

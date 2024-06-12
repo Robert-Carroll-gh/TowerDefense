@@ -3,6 +3,7 @@ local HORDE_SIZE = 10
 local SPAWN_RATE = 2
 local ENEMY_HP = 20
 local STARTING_MANA = 300
+local STARTING_MANA_CAP = 1000
 
 -- load modules
 local Bullets = require "bullets"
@@ -19,6 +20,7 @@ ManaColor = { 0, 1, 1 }
 
 World = {
     mana = STARTING_MANA,
+    manaCap = STARTING_MANA_CAP,
     graphicHandler = Graphics,
     bulletHandler = Bullets,
     timerHandler = Timers,
@@ -85,6 +87,9 @@ love.keypressed = function(key, scancode, isrepeat)
         map.spawnEnemies(HORDE_SIZE, SPAWN_RATE, ENEMY_HP)
     elseif key == "f3" then
         Utils:toggle()
+    elseif key == "m" then
+        -- cheat
+        World.mana = World.manaCap
     elseif key == "escape" then
         love.event.push "quit"
     end

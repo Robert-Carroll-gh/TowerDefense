@@ -28,7 +28,7 @@ end
 
 ---not a TowerHandler constructor
 --- instead, constructs Tower and adds it to the handler's list
----@param type string
+---@param towerType string
 ---@param x number
 ---@param y number
 ---@return Tower
@@ -37,6 +37,8 @@ function TowerHandler:new(towerType, x, y)
     if TowerHandler.types[towerType] ~= nil then
         tower = TowerHandler.types[towerType]:new(x, y)
     elseif type(towerType) == "table" then
+        print(towerType.new)
+        print(Tower.new)
         tower = towerType:new(x, y)
     else
         tower = Tower:new(x, y)
@@ -49,6 +51,7 @@ function TowerHandler:update(dt)
     for i = #self.Towers, 1, -1 do
         local tower = self.Towers[i]
         if tower.kill then
+            tower.shotTimer.kill = true
             table.remove(self.Towers, i)
         else
             tower:update(dt)
