@@ -15,6 +15,7 @@ local Tower = {
     fireRate = 1, -- seconds between shots
     -- damage = 1, -- damage per shot
     hp = 100,
+    shots = 0,
 }
 Tower.__index = Tower
 TowerHandler.Tower = Tower
@@ -37,8 +38,6 @@ function TowerHandler:new(towerType, x, y)
     if TowerHandler.types[towerType] ~= nil then
         tower = TowerHandler.types[towerType]:new(x, y)
     elseif type(towerType) == "table" then
-        print(towerType.new)
-        print(Tower.new)
         tower = towerType:new(x, y)
     else
         tower = Tower:new(x, y)

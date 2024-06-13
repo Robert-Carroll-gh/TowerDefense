@@ -5,16 +5,41 @@ towerTypes.basic = {
 }
 
 towerTypes.mystic = {
-    cost = 10,
+    upgradesFrom = nil,
+    upgradesTo = "arcane",
+    cost = 50,
     color = { 0.5, 1, 0 },
     bulletType = "star",
 }
 
-towerTypes.aoe = {
+towerTypes.arcane = {
+    upgradesFrom = "mystic",
+    upgradesTo = "crescent_moon",
     cost = 50,
-    color = { 0, 0.3, 1 },
+    color = { 0.6, 1, 0 },
+    bulletType = "star",
+    shotCounter = 0,
+}
+function towerTypes.arcane:shoot(x, y)
+    World.bulletHandler:new(self.bulletType or "basic", self.x, self.y, x, y)
+    self.shotCounter = self.shotCounter + 1
+    if self.shotCounter == 2 then
+        self.bulletType = "aoe"
+    else
+        self.bulletType = "star"
+    end
+    if self.shotCounter == 3 then
+        self.shotCounter = 0
+    end
+end
+
+towerTypes.crescent_moon = {
+    upgradesFrom = "arcane",
+    upgradesTo = "none",
+    cost = 150,
+    color = { 0.6, 1, 0 },
     bulletType = "aoe",
-    fireRate = 3,
+    fireRate = 0.75,
 }
 
 towerTypes.fae_puff = {
