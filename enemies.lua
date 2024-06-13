@@ -17,6 +17,7 @@ local Enemy = {
     speedY = 0,
     pathNode = 1,
     slow = nil,
+    waitTime = 0,
 
     olddraw = function(self)
         love.graphics.setColor(1, 1, 1)
@@ -43,6 +44,12 @@ function Enemy:update(dt)
     local speedFactor = 1
     if self.slow ~= nil then
         speedFactor = 1 - self.slow
+    end
+    if self.waitTime > 0 then
+        speedFactor = 0
+        self.waitTime = self.waitTime - dt
+    else
+        self.waitTime = 0
     end
 
     local vecToX, vecToY = utils.vecTo(self.x, self.y, pathNode[1], pathNode[2])

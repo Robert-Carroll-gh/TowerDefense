@@ -16,6 +16,7 @@ local Tower = {
     -- damage = 1, -- damage per shot
     hp = 100,
     shots = 0,
+    cleanup = nil,
 }
 Tower.__index = Tower
 TowerHandler.Tower = Tower
@@ -52,6 +53,9 @@ function TowerHandler:update(dt)
         if tower.kill then
             if tower.shotTimer ~= nil then
                 tower.shotTimer.kill = true
+            end
+            if tower.cleanup ~= nil then
+                tower:cleanup()
             end
             table.remove(self.Towers, i)
         else

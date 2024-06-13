@@ -206,9 +206,15 @@ function towerTypes.elf_lantern:hunt(target)
     World.graphicHandler:lineLink(self, target, 4, self.color)
 end
 
+function towerTypes.elf_lantern:cleanup()
+    if self.target ~= nil then
+        self.target.slow = nil
+    end
+end
+
 towerTypes.elf_crystal = {
     upgradesFrom = "elf_lantern",
-    upgradesTo = "none",
+    upgradesTo = "elven_night_ward",
     cost = 75,
     color = { 1, 1, 1 },
     slowValue = 0.25,
@@ -249,6 +255,54 @@ function towerTypes.elf_crystal:hunt(target, targetSlot)
     end
     target.slow = self.slowValue
     World.graphicHandler:lineLink(self, target, 4, self.color)
+end
+
+function towerTypes.elf_crystal:cleanup()
+    if self.target1 ~= nil then
+        self.target1.slow = nil
+    end
+    if self.target2 ~= nil then
+        self.target2.slow = nil
+    end
+end
+
+towerTypes.elven_night_ward = {
+    cost = 200,
+    upgradesFrom = "elf_crystal",
+    upgradesTo = "none",
+    color = { 1, 1, 1 },
+    fireRate = 5,
+    freezeDuration = 1,
+}
+
+function towerTypes.elven_night_ward:freeze()
+    World.graphicHandler:flashCircle(self.x, self.y, 75, { 1, 1, 1, 0.5 })
+
+    for i, enemy in ipairs(World.enemyHandler.Enemies) do
+        if enemy.slow ~= nil and enemy.slow ~= 0 then
+            enemy.waitTime = enemy.waitTime + self.freezeDuration
+        end
+    end
+end
+
+function towerTypes.elven_night_ward:new(x, y)
+    local t = World.towerHandler.Tower.new(self, x, y)
+    t.shotTimer = World.timerHandler:new(self.fireRate, function()
+        t:freeze()
+    end, true)
+
+    self.__index = self
+    setmetatable(t, self)
+
+    return t
+end
+function towerTypes.elven_night_ward:update(dt)
+    if self.hp <= 0 then
+        self.kill = true
+    end
+    if self.kill == true then
+        self.shotTimer.kill = true
+    end
 end
 
 -- so I don't have to worry about declaring everything in the right order for one upgrade direction and go back seperately after for the other direction
