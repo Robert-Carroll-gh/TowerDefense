@@ -32,8 +32,10 @@ function GraphicHandler:lineLink(object1, object2, width, color, duration)
             return
         end
         love.graphics.setColor(self.color)
+        local oldWidth = love.graphics.getLineWidth()
         love.graphics.setLineWidth(self.width)
         love.graphics.line(object1.x, object1.y, object2.x, object2.y)
+        love.graphics.setLineWidth(oldWidth)
     end
     if duration ~= nil then
         World.timerHandler:new(duration, function()

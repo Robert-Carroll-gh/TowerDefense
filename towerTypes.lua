@@ -173,11 +173,48 @@ towerTypes.sacred_haven = {
     end, ]]
 }
 
-towerTypes.slow = {
-    cost = 10000,
+towerTypes.elf_crystal = {
+    cost = 100,
     color = { 1, 1, 1 },
-    bulletType = "slow",
+    slowValue = 0.25,
+    -- bulletType = "slow",
 }
+function towerTypes.elf_crystal:update(dt)
+    if self.hp <= 0 then
+        self.kill = true
+        return true
+    end
+    local enemies = World.enemyHandler.Enemies
+    local notSlowed = function(enemy)
+        return enemy.slow == nil or enemy.slow == 0
+    end
+    if self.target1 == nil then
+        local nextTarget = Utils.closestObject(self.x, self.y, enemies, notSlowed)
+        if nextTarget then
+            self:hunt(nextTarget, 1)
+        end
+    elseif self.target1.kill then
+        self.target1 = nil
+    end
+    if self.target2 == nil then
+        local nextTarget = Utils.closestObject(self.x, self.y, enemies, notSlowed)
+        if nextTarget then
+            self:hunt(nextTarget, 2)
+        end
+    elseif self.target2.kill then
+        self.target2 = nil
+    end
+end
+
+function towerTypes.elf_crystal:hunt(target, targetSlot)
+    if targetSlot == 1 then
+        self.target1 = target
+    elseif targetSlot == 2 then
+        self.target2 = target
+    end
+    target.slow = self.slowValue
+    World.graphicHandler:lineLink(self, target, 4, self.color)
+end
 
 -- so I don't have to worry about declaring everything in the right order for one upgrade direction and go back seperately after for the other direction
 for name, tower in pairs(towerTypes) do

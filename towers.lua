@@ -113,7 +113,7 @@ function Tower:update(dt)
             self.shotTimer.kill = true
         end
         local enemies = World.enemyHandler.Enemies
-        local nextTarget = enemies[1]
+        local nextTarget = Utils.closestObject(self.x, self.y, enemies)
         if nextTarget then
             self:hunt(nextTarget)
         end

@@ -16,6 +16,7 @@ local Enemy = {
     speedX = 0,
     speedY = 0,
     pathNode = 1,
+    slow = nil,
 
     olddraw = function(self)
         love.graphics.setColor(1, 1, 1)
@@ -39,8 +40,13 @@ function Enemy:update(dt)
 
     local pathNode = World.map.enemyPath[self.pathNode]
 
+    local speedFactor = 1
+    if self.slow ~= nil then
+        speedFactor = 1 - self.slow
+    end
+
     local vecToX, vecToY = utils.vecTo(self.x, self.y, pathNode[1], pathNode[2])
-    self.speedX, self.speedY = utils.normalize(vecToX, vecToY, self.speed * dt)
+    self.speedX, self.speedY = utils.normalize(vecToX, vecToY, self.speed * dt * speedFactor)
     self.x = self.x + self.speedX
     self.y = self.y + self.speedY
 

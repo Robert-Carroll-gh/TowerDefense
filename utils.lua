@@ -85,5 +85,27 @@ end
 function utils.length(x, y)
     return math.sqrt(utils.lengthSquared(x, y))
 end
+function utils.distanceSquared(x1, y1, x2, y2)
+    return utils.lengthSquared(utils.vecTo(x1, y1, x2, y2))
+end
+function utils.distance(x1, y1, x2, y2)
+    return utils.length(utils.vecTo(x1, y1, x2, y2))
+end
+
+function utils.closestObject(x, y, objectList, filter)
+    local closest = nil
+    local minSquare = 99999999
+    filter = filter or function()
+        return true
+    end
+    for i, object in ipairs(objectList) do
+        local distance = utils.distanceSquared(x, y, object.x, object.y)
+        if distance < minSquare and filter(object) then
+            minSquare = distance
+            closest = object
+        end
+    end
+    return closest
+end
 
 return utils
