@@ -19,6 +19,30 @@ function GraphicHandler:new(g)
     return graphic
 end
 
+function GraphicHandler:lineLink(object1, object2, width, color, duration)
+    local line = {
+        object1 = object1,
+        object2 = object2,
+        width = width,
+        color = color,
+    }
+    line.draw = function(self)
+        if object1.kill or object2.kill then
+            self.kill = true
+            return
+        end
+        love.graphics.setColor(self.color)
+        love.graphics.setLineWidth(self.width)
+        love.graphics.line(object1.x, object1.y, object2.x, object2.y)
+    end
+    if duration ~= nil then
+        World.timerHandler:new(duration, function()
+            line.kill = true
+        end, false)
+    end
+    return self:new(line)
+end
+
 function GraphicHandler:flashCircle(x, y, radius, color)
     local circle = { x = x or 0, y = y or 0, radius = radius or 100, color = color or { 1, 1, 1 } }
     circle.draw = function(self)
