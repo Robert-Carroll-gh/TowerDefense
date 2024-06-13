@@ -50,7 +50,9 @@ function TowerHandler:update(dt)
     for i = #self.Towers, 1, -1 do
         local tower = self.Towers[i]
         if tower.kill then
-            tower.shotTimer.kill = true
+            if tower.shotTimer ~= nil then
+                tower.shotTimer.kill = true
+            end
             table.remove(self.Towers, i)
         else
             tower:update(dt)

@@ -173,12 +173,47 @@ towerTypes.sacred_haven = {
     end, ]]
 }
 
-towerTypes.elf_crystal = {
+towerTypes.elf_lantern = {
+    upgradesFrom = nil,
+    upgradesTo = "elf_crystal",
     cost = 100,
     color = { 1, 1, 1 },
     slowValue = 0.25,
     -- bulletType = "slow",
 }
+function towerTypes.elf_lantern:update(dt)
+    if self.hp <= 0 then
+        self.kill = true
+        return true
+    end
+    local enemies = World.enemyHandler.Enemies
+    local notSlowed = function(enemy)
+        return enemy.slow == nil or enemy.slow == 0
+    end
+    if self.target == nil then
+        local nextTarget = Utils.closestObject(self.x, self.y, enemies, notSlowed)
+        if nextTarget then
+            self:hunt(nextTarget)
+        end
+    elseif self.target.kill then
+        self.target = nil
+    end
+end
+
+function towerTypes.elf_lantern:hunt(target)
+    self.target = target
+    target.slow = self.slowValue
+    World.graphicHandler:lineLink(self, target, 4, self.color)
+end
+
+towerTypes.elf_crystal = {
+    upgradesFrom = "elf_lantern",
+    upgradesTo = "none",
+    cost = 75,
+    color = { 1, 1, 1 },
+    slowValue = 0.25,
+}
+
 function towerTypes.elf_crystal:update(dt)
     if self.hp <= 0 then
         self.kill = true
