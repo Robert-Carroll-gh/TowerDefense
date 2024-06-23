@@ -17,6 +17,7 @@ local Tower = {
     hp = 100,
     shots = 0,
     cleanup = nil,
+    upgrades = {},
 }
 Tower.__index = Tower
 TowerHandler.Tower = Tower

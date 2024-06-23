@@ -1,14 +1,15 @@
 -- difficulty testing options
 local HORDE_SIZE = 10
-local SPAWN_RATE = 2
-local ENEMY_HP = 20
-local STARTING_MANA = 300
+local SPAWN_RATE = 3
+local ENEMY_HP = 5
+local STARTING_MANA = 500
 local STARTING_MANA_CAP = 1000
 
 -- load modules
 local Bullets = require "bullets"
 local Timers = require "timers"
 local Towers = require "towers"
+local Items = require "items"
 local Enemies = require "enemies"
 local map = require "map1"
 local gui = require "gui"
@@ -26,7 +27,9 @@ World = {
     timerHandler = Timers,
     enemyHandler = Enemies,
     map = map,
+    gui = gui,
     towerHandler = Towers,
+    itemHandler = Items,
 }
 
 function ID(object)
@@ -53,6 +56,7 @@ love.draw = function()
     Enemies:draw()
     Towers:draw()
     Bullets:draw()
+    Items:draw()
     gui:draw()
 
     Utils:drawDebug()
@@ -64,6 +68,8 @@ love.update = function(dt)
     Towers:update(dt)
     Timers:update(dt)
     Bullets:update(dt)
+    Items:update(dt)
+    gui:update(dt)
 end
 
 love.mousepressed = function(x, y, mouseButton, istouch, presses)

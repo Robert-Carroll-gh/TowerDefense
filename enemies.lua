@@ -1,4 +1,5 @@
 local utils = require "utils"
+local lootTables = require "lootTables"
 
 local smiley = love.graphics.newImage "images/mob1.png"
 
@@ -19,13 +20,7 @@ local Enemy = {
     slow = nil,
     waitTime = 0,
 
-    olddraw = function(self)
-        love.graphics.setColor(1, 1, 1)
-
-        love.graphics.print(self.hp, self.x, self.y + 50)
-
-        love.graphics.circle("fill", self.x, self.y, self.radius)
-    end,
+    lootTable = lootTables[1],
 
     draw = function(self)
         love.graphics.setColor(1, 1, 1)
@@ -33,6 +28,33 @@ local Enemy = {
         love.graphics.print(self.hp, self.x, self.y + 50)
     end,
 }
+
+function Enemy:dropLoot()
+    assert(self.lootTable ~= nil)
+    local sum = 0
+    local dice = math.random()
+    for itemName, dropChance in pairs(self.lootTable) do
+        sum = sum + dropChance
+        if sum >= dice then
+            local item = World.itemHandler:new(itemName, self.x, self.y)
+            local itemClickBox
+            itemClickBox = {
+                x = (item.x - item.width / 2),
+                y = (item.y - item.width / 2),
+                width = item.width,
+                height = item.height,
+                color = { 1, 0, 0 },
+
+                onClick = function()
+                    item:pickUp()
+                    itemClickBox.kill = true
+                    print "item box clicked"
+                end,
+            }
+            World.gui.Box:new(itemClickBox)
+        end
+    end
+end
 
 function Enemy:update(dt)
     if self.hp <= 0 then
@@ -71,6 +93,9 @@ function EnemyHandler:update(dt)
     for i, enemy in ipairs(self.Enemies) do
         enemy:update(dt)
         if enemy.kill then
+            if enemy.lootTable ~= nil then
+                --enemy:dropLoot()
+            end
             table.remove(self.Enemies, i)
         end
     end

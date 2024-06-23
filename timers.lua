@@ -72,6 +72,9 @@ function Timer:update(dt)
             end
         end
         self.progress = self.progress - self.duration
+        if self.progress > self.duration * 2 then
+            self.progress = 0
+        end
     end
 end
 

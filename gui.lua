@@ -128,6 +128,39 @@ function M.loadUpgradeMenu()
         M.placing = nil
         M.loadGameMenu()
     end
+
+    local itemButtonTemplate = {
+        x = 5,
+        y = 70,
+        width = 50,
+        height = 50,
+        color = { 0, 0, 1 },
+    }
+    -- M.Box:new(itemButtonTemplate, sideBar)
+
+    local offset = 5
+    local i = 0
+
+    --TODO sort item type buttons. by cost or alphabetical
+    for name, item in pairs(World.itemHandler.Items) do
+        if item.usage == "towerUpgrade" and item.pickedUp == true then
+            i = i + 1
+            local button = {
+                y = backButton.y + ((i + 1) * (backButton.height + offset)),
+            }
+            if item.color then
+                button.color = item.color
+            end
+            itemButtonTemplate:new(button, sideBar)
+            button:newText(name)
+            local costText = button:newText(item.cost or 0, 0, 10)
+            costText.color = ManaColor
+
+            button.onClick = function()
+                M.placing = { object = item, type = "item", name = name }
+            end
+        end
+    end
 end
 
 M.canPlace = function()
@@ -140,7 +173,7 @@ end
 M.Box = {
     active = true,
     relative = false,
-    parent = nil,
+    parent = M,
     x = 0,
     y = 0,
     width = 100,
@@ -152,7 +185,7 @@ M.Box = {
 }
 
 function M.Box:getAbsolutePos()
-    if self.parent == nil then
+    if self.parent == nil or self.parent == M then
         return self.x, self.y
     else
         local parentX, parentY = M.Box.getAbsolutePos(self.parent)
@@ -178,6 +211,8 @@ function M:processClick(x, y, mouseButton, box)
             M.placeObject(x, y)
             World.mana = World.mana - M.placing.object.cost
         end
+    elseif clickedSomeGui == false and box == nil and M.placing == nil then
+        local hoveredItem = M.itemAt(x, y)
     end
     return clickedSomeGui
 end
@@ -252,7 +287,7 @@ function M:draw(box)
         elements = box.elements
         love.graphics.push()
         love.graphics.translate(box.x, box.y)
-    elseif self.placing then
+    elseif self.placing ~= nil then
         self:drawPlacement()
     end
 
@@ -260,6 +295,8 @@ function M:draw(box)
         if element.draw then
             element:draw()
         end
+
+        --recursion
         if element.elements and #element.elements > 0 then
             self.draw(self, element)
         end
@@ -269,10 +306,47 @@ function M:draw(box)
     end
 end
 
+function M:update(dt, box)
+    local elements = self.elements
+    if box then
+        elements = box.elements
+        if box.kill == true then
+            for i, v in ipairs(box.parent.elements) do
+                if v == box then
+                    if box.cleanUp ~= nil then
+                        box:cleanUp()
+                    end
+                    table.remove(box.parent.elements, i)
+                    return "removed a gui box element"
+                end
+            end
+        end
+    end
+
+    for _, element in ipairs(elements) do
+        if element.update then
+            element:update(dt)
+        end
+
+        --recursion
+        if element.elements and #element.elements > 0 then
+            self.update(self, dt, element)
+        end
+    end
+end
+
 function M.towerAt(x, y)
     for i, tower in ipairs(World.towerHandler.Towers) do
         if Utils.isPointInCenteredRec(x, y, tower) then
             return tower
+        end
+    end
+end
+
+function M.itemAt(x, y)
+    for i, item in ipairs(World.itemHandler.Items) do
+        if Utils.isPointInCenteredRec(x, y, item) then
+            return item
         end
     end
 end
@@ -312,23 +386,27 @@ end
 function M:drawPlacement()
     if M.placing.type == "tower" then
         drawTowerPlacement()
-    end
-
-    if M.placing.type == "upgrade" then
+    elseif M.placing.type == "upgrade" then
         drawUpgradePlacement()
+    else
+        error "unknown placing type"
     end
+end
 
-    if object ~= nil then
-        local x = mx - object.width / 2
-        local y = my - object.height / 2
-        love.graphics.setBlendMode "screen"
-        object:draw(mx, my)
-        love.graphics.setBlendMode "alpha"
-        if self.placing.type == "tower" and M.canPlace() == false then
-            love.graphics.setColor(1, 0, 0, 0.5)
-            love.graphics.rectangle("fill", x, y, object.width, object.height)
-        end
+function M:selfDestructDemo()
+    local mainBox = {
+        x = 10,
+        y = 10,
+        width = 150,
+        height = 350,
+    }
+    self.Box:new(mainBox)
+    mainBox.onClick = function()
+        print "self destructing, no one can save me"
+        mainBox.kill = true
+        return true
     end
+    mainBox:newText("test", 15, 60)
 end
 
 function M:onClickDemo()
