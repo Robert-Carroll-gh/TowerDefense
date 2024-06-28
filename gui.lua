@@ -317,6 +317,7 @@ function M:update(dt, box)
                         box:cleanUp()
                     end
                     table.remove(box.parent.elements, i)
+                    print "removed a gui box element"
                     return "removed a gui box element"
                 end
             end
@@ -326,6 +327,19 @@ function M:update(dt, box)
     for _, element in ipairs(elements) do
         if element.update then
             element:update(dt)
+        end
+
+        if element.kill == true then
+            for i, v in ipairs(element.parent.elements) do
+                if v == element then
+                    if element.cleanUp ~= nil then
+                        element:cleanUp()
+                    end
+                    table.remove(element.parent.elements, i)
+                    print "removed a gui element"
+                    return "removed a gui element"
+                end
+            end
         end
 
         --recursion

@@ -94,7 +94,7 @@ function EnemyHandler:update(dt)
         enemy:update(dt)
         if enemy.kill then
             if enemy.lootTable ~= nil then
-                --enemy:dropLoot()
+                enemy:dropLoot()
             end
             table.remove(self.Enemies, i)
         end
