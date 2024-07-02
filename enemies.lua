@@ -35,7 +35,7 @@ function Enemy:dropLoot()
     local dice = math.random()
     for itemName, dropChance in pairs(self.lootTable) do
         sum = sum + dropChance
-        if sum >= dice then
+        if sum >= dice and itemName ~= "none" then
             local item = World.itemHandler:new(itemName, self.x, self.y)
             local itemClickBox
             itemClickBox = {
@@ -47,8 +47,8 @@ function Enemy:dropLoot()
 
                 onClick = function()
                     item:pickUp()
-                    itemClickBox.kill = true
                     print "item box clicked"
+                    itemClickBox.kill = true
                 end,
             }
             World.gui.Box:new(itemClickBox)

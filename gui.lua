@@ -50,6 +50,17 @@ function M.loadGameMenu()
     M.Box:new(upgradeTowerButton, sideBar)
     upgradeTowerButton:newText "Upgrade\nTower"
     upgradeTowerButton.onClick = M.loadUpgradeMenu
+
+    local useItemButton = {
+        x = 5,
+        y = 135,
+        width = 50,
+        height = 50,
+        color = { 1, 0, 1 },
+    }
+    M.Box:new(useItemButton, sideBar)
+    useItemButton:newText "Use\nItem"
+    useItemButton.onClick = M.loadItemMenu
 end
 
 function M.loadTowerMenu()
@@ -163,6 +174,32 @@ function M.loadUpgradeMenu()
     end
 end
 
+function M.loadItemMenu()
+    sideBar.elements = {}
+
+    local backButton = {
+        x = 5,
+        y = 15,
+        width = 50,
+        height = 50,
+        color = { 1, 0, 0 },
+    }
+    M.Box:new(backButton, sideBar)
+    backButton:newText "Back"
+    backButton.onClick = function()
+        M.placing = nil
+        M.loadGameMenu()
+    end
+
+    local itemButtonTemplate = {
+        x = 5,
+        y = 70,
+        width = 50,
+        height = 50,
+        color = { 0, 0, 1 },
+    }
+end
+
 M.canPlace = function()
     if M.placing.object ~= nil then
         return World.mana >= M.placing.object.cost
@@ -202,7 +239,9 @@ function M:processClick(x, y, mouseButton, box)
     for _, element in ipairs(elements) do
         if Utils.isPointInRec(x, y, element) then
             clickedSomeGui = true
-            pcall(element.onClick)
+            if element.onClick ~= nil then
+                element.onClick()
+            end
             M:processClick(x, y, mouseButton, element)
         end
     end
@@ -310,36 +349,16 @@ function M:update(dt, box)
     local elements = self.elements
     if box then
         elements = box.elements
-        if box.kill == true then
-            for i, v in ipairs(box.parent.elements) do
-                if v == box then
-                    if box.cleanUp ~= nil then
-                        box:cleanUp()
-                    end
-                    table.remove(box.parent.elements, i)
-                    print "removed a gui box element"
-                    return "removed a gui box element"
-                end
-            end
-        end
     end
 
-    for _, element in ipairs(elements) do
-        if element.update then
-            element:update(dt)
+    for i, element in ipairs(elements) do
+        if element.kill == true then
+            table.remove(elements, i)
+            return "removed a gui element"
         end
 
-        if element.kill == true then
-            for i, v in ipairs(element.parent.elements) do
-                if v == element then
-                    if element.cleanUp ~= nil then
-                        element:cleanUp()
-                    end
-                    table.remove(element.parent.elements, i)
-                    print "removed a gui element"
-                    return "removed a gui element"
-                end
-            end
+        if element.update then
+            element:update(dt)
         end
 
         --recursion

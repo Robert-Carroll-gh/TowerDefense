@@ -1,5 +1,7 @@
+math.randomseed(os.time())
+
 -- difficulty testing options
-local HORDE_SIZE = 10
+local HORDE_SIZE = 5
 local SPAWN_RATE = 3
 local ENEMY_HP = 5
 local STARTING_MANA = 500
@@ -76,9 +78,6 @@ love.mousepressed = function(x, y, mouseButton, istouch, presses)
     if gui:processClick(x, y, mouseButton) then
         return true
     end
-    if mouseButton == 1 then
-        --Towers:new("basic", x, y)
-    end
 end
 
 love.keypressed = function(key, scancode, isrepeat)
@@ -98,5 +97,32 @@ love.keypressed = function(key, scancode, isrepeat)
         World.mana = World.manaCap
     elseif key == "escape" then
         love.event.push "quit"
+    elseif key == "r" then
+        --reset
+
+        Bullets = require "bullets"
+        Timers = require "timers"
+        Towers = require "towers"
+        Items = require "items"
+        Enemies = require "enemies"
+        map = require "map1"
+        gui = require "gui"
+        Graphics = require "graphicEffects"
+
+        Utils = require "utils"
+        ManaColor = { 0, 1, 1 }
+
+        World = {
+            mana = STARTING_MANA,
+            manaCap = STARTING_MANA_CAP,
+            graphicHandler = Graphics,
+            bulletHandler = Bullets,
+            timerHandler = Timers,
+            enemyHandler = Enemies,
+            map = map,
+            gui = gui,
+            towerHandler = Towers,
+            itemHandler = Items,
+        }
     end
 end

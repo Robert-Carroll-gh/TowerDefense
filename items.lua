@@ -22,9 +22,11 @@ local Item = {
 Item.__index = Item
 
 ItemHandler.types = require "itemTypes"
+ItemHandler.pickedUpCounts = {}
 for name, item in pairs(ItemHandler.types) do
     item.__index = Item
     setmetatable(item, Item)
+    ItemHandler.pickedUpCounts[name] = 0
 end
 
 function ItemHandler:update(dt)
@@ -39,7 +41,7 @@ function ItemHandler:update(dt)
 end
 
 function ItemHandler:draw()
-    for _, item in pairs(self.Items) do
+    for _, item in ipairs(self.Items) do
         if item.pickedUp == false then
             item:draw()
         end
@@ -55,10 +57,10 @@ end
 function ItemHandler:new(type, x, y, targetX, targetY)
     local item
     if ItemHandler.types[type] ~= nil and ItemHandler.types[type] ~= "none" then
-        print("newItem: " .. type)
+        --print("newItem: " .. type)
         item = ItemHandler.types[type]:new(x, y, targetX, targetY)
     else
-        item = Item:new(x, y)
+        error("Invalid Item: " .. type)
     end
     table.insert(self.Items, item)
     return item
@@ -83,6 +85,8 @@ function Item:pickUp()
     assert(self.pickedUp == false)
     assert(self.attatched == false)
     self.pickedUp = true
+    self.kill = true
+    World.itemHandler.pickedUpCounts[self.typeName] = World.itemHandler.pickedUpCounts[self.typeName] + 1
 end
 
 function Item:update(dt)
