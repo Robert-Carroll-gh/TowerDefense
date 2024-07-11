@@ -139,39 +139,6 @@ function M.loadUpgradeMenu()
         M.placing = nil
         M.loadGameMenu()
     end
-
-    local itemButtonTemplate = {
-        x = 5,
-        y = 70,
-        width = 50,
-        height = 50,
-        color = { 0, 0, 1 },
-    }
-    -- M.Box:new(itemButtonTemplate, sideBar)
-
-    local offset = 5
-    local i = 0
-
-    --TODO sort item type buttons. by cost or alphabetical
-    for name, item in pairs(World.itemHandler.Items) do
-        if item.usage == "towerUpgrade" and item.pickedUp == true then
-            i = i + 1
-            local button = {
-                y = backButton.y + ((i + 1) * (backButton.height + offset)),
-            }
-            if item.color then
-                button.color = item.color
-            end
-            itemButtonTemplate:new(button, sideBar)
-            button:newText(name)
-            local costText = button:newText(item.cost or 0, 0, 10)
-            costText.color = ManaColor
-
-            button.onClick = function()
-                M.placing = { object = item, type = "item", name = name }
-            end
-        end
-    end
 end
 
 function M.loadItemMenu()
@@ -196,8 +163,24 @@ function M.loadItemMenu()
         y = 70,
         width = 50,
         height = 50,
-        color = { 0, 0, 1 },
+        color = { 0, 0, 1, 0 },
     }
+    M.Box:new(itemButtonTemplate, sideBar)
+
+    local offset = 5
+    local i = 0
+    for itemName, count in pairs(World.itemHandler.pickedUpCounts) do
+        i = i + 1
+        local button = {
+            y = backButton.y + (i * (backButton.height + offset)),
+            color = { 0, 0, 1 },
+        }
+        itemButtonTemplate:new(button, sideBar)
+        button:newText(function()
+            return World.itemHandler.pickedUpCounts[itemName]
+        end)
+        button:newText(itemName, 0, 12)
+    end
 end
 
 M.canPlace = function()
