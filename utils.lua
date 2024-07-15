@@ -5,6 +5,9 @@ function utils.isPointInCenteredRec(x, y, rec)
     local miny = rec.y - rec.height / 2
     local maxx = rec.x + rec.width / 2
     local maxy = rec.y + rec.height / 2
+    if maxx == nil or minx == nil or maxy == nil or miny == nil then
+        return false
+    end
     return x >= minx and x <= maxx and y >= miny and y <= maxy
 end
 

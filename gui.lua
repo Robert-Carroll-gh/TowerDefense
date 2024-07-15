@@ -180,12 +180,21 @@ function M.loadItemMenu()
             return World.itemHandler.pickedUpCounts[itemName]
         end)
         button:newText(itemName, 0, 12)
+        button.onClick = function()
+            M.placing = { object = World.itemHandler.types[itemName], type = "itemUpgrade", name = itemName }
+        end
     end
 end
 
 M.canPlace = function()
     if M.placing.object ~= nil then
-        return World.mana >= M.placing.object.cost
+        if M.placing.object.cost ~= nil then
+            return World.mana >= M.placing.object.cost
+        end
+        if M.placing.type == "itemUpgrade" then
+            return World.itemHandler.pickedUpCounts[M.placing.name] > 0
+        end
+        return true
     end
     return false
 end
@@ -231,10 +240,13 @@ function M:processClick(x, y, mouseButton, box)
     if clickedSomeGui == false and box == nil and M.placing ~= nil then
         if M.canPlace() and mouseButton == 1 then
             M.placeObject(x, y)
-            World.mana = World.mana - M.placing.object.cost
+            if M.placing.object.cost ~= nil then
+                World.mana = World.mana - M.placing.object.cost
+            end
+            if M.placing.type == "itemUpgrade" then
+                World.itemHandler.pickedUpCounts[M.placing.name] = World.itemHandler.pickedUpCounts[M.placing.name] - 1
+            end
         end
-    elseif clickedSomeGui == false and box == nil and M.placing == nil then
-        local hoveredItem = M.itemAt(x, y)
     end
     return clickedSomeGui
 end
@@ -243,10 +255,14 @@ function M.placeObject(x, y)
     if M.placing.type == "tower" then
         World.towerHandler:new(M.placing.name, x, y)
     elseif M.placing.type == "upgrade" then
-        local mx, my = love.mouse.getPosition()
-        local hoveredTower = M.towerAt(mx, my)
+        local hoveredTower = M.towerAt(x, y)
         World.towerHandler:new(M.placing.object, hoveredTower.x, hoveredTower.y)
         hoveredTower.kill = true
+    elseif M.placing.type == "itemUpgrade" then
+        local hoveredTower = M.towerAt(x, y)
+        if hoveredTower ~= nil then
+            M.placing.object.effect.upgrade(hoveredTower)
+        end
     end
 end
 
@@ -328,10 +344,24 @@ function M:draw(box)
     end
 end
 
+local updateUpgradePlacement = function()
+    local mx, my = love.mouse.getPosition()
+    local hoveredTower = M.towerAt(mx, my)
+    if hoveredTower ~= nil and hoveredTower.upgradesTo ~= nil and hoveredTower.upgradesTo ~= "none" then
+        M.placing.object = hoveredTower.upgradesTo
+    else
+        M.placing.object = nil
+    end
+end
+
 function M:update(dt, box)
     local elements = self.elements
     if box then
         elements = box.elements
+    elseif self.placing ~= nil then
+        if self.placing.type == "upgrade" then
+            updateUpgradePlacement()
+        end
     end
 
     for i, element in ipairs(elements) do
@@ -357,6 +387,7 @@ function M.towerAt(x, y)
             return tower
         end
     end
+    return nil
 end
 
 function M.itemAt(x, y)
@@ -382,27 +413,24 @@ local drawTowerPlacement = function()
 end
 
 local drawUpgradePlacement = function()
+    local object = M.placing.object
     local mx, my = love.mouse.getPosition()
     local hoveredTower = M.towerAt(mx, my)
-    if hoveredTower ~= nil and hoveredTower.upgradesTo ~= nil and hoveredTower.upgradesTo ~= "none" then
-        M.placing.object = hoveredTower.upgradesTo
-        local object = M.placing.object
+    if hoveredTower ~= nil and object ~= nil then
         love.graphics.setBlendMode "screen"
         object:draw(hoveredTower.x, hoveredTower.y)
         love.graphics.setBlendMode "alpha"
         if M.canPlace() == false then
             love.graphics.setColor(1, 0, 0, 0.5)
-            love.graphics.rectangle("fill", hoveredTower.x, hoveredTower.y, object.width, object.height)
+            love.graphics.rectangle("fill", hoveredTower.x, hoveredTower.y, object.width / 2, object.height / 2)
         end
-    else
-        M.placing.object = nil
     end
 end
 
 function M:drawPlacement()
     if M.placing.type == "tower" then
         drawTowerPlacement()
-    elseif M.placing.type == "upgrade" then
+    elseif M.placing.type == "upgrade" or M.placing.type == "itemUpgrade" then
         drawUpgradePlacement()
     else
         error "unknown placing type"
