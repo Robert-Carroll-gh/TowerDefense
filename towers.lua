@@ -13,7 +13,8 @@ local Tower = {
     height = 50,
     color = { 0.3, 0.3, 0.3 },
     fireRate = 1, -- seconds between shots
-    -- damage = 1, -- damage per shot
+    damageMultiplier = 1,
+    range = 400,
     hp = 100,
     shots = 0,
     cleanup = nil,
@@ -102,12 +103,18 @@ end
 function Tower:draw(x, y)
     local x = x or self.x
     local y = y or self.y
+    if self.image ~= nil then
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.draw(self.image, x - self.width / 2, y - self.height / 2)
+        return nil
+    end
     love.graphics.setColor(self.color)
     love.graphics.rectangle("fill", x - self.width / 2, y - self.height / 2, self.width, self.height)
 end
 
 function Tower:shoot(x, y)
-    World.bulletHandler:new(self.bulletType or "basic", self.x, self.y, x, y)
+    local bullet = World.bulletHandler:new(self.bulletType or "basic", self.x, self.y, x, y)
+    bullet.damage = bullet.damage * self.damageMultiplier
 end
 
 function Tower:update(dt)

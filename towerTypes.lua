@@ -174,6 +174,9 @@ towerTypes.sacred_haven = {
 }
 
 towerTypes.elf_lantern = {
+    image = love.graphics.newImage "images/ice_fairy.png",
+    width = 100,
+    height = 100,
     upgradesFrom = nil,
     upgradesTo = "elf_crystal",
     cost = 100,
